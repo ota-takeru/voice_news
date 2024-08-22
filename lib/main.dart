@@ -27,15 +27,11 @@ class NewsApp extends StatelessWidget {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.resolveWith<Color>(
-              (Set<WidgetState> states) {
-                if (states.contains(WidgetState.disabled)) {
-                  return AppColors.disabled;
-                }
-                return AppColors.primary;
-              },
-            ),
-            foregroundColor: WidgetStateProperty.all(Colors.white),
+            backgroundColor: const WidgetStatePropertyAll(AppColors.primary),
+            foregroundColor: const WidgetStatePropertyAll(Colors.white),
+            elevation: const WidgetStatePropertyAll(4.0),
+            shadowColor:
+                WidgetStatePropertyAll(AppColors.primary.withOpacity(0.5)),
           ),
         ),
       ),

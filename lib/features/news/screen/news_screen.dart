@@ -26,7 +26,7 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
 
   Future<void> _initTts() async {
     await flutterTts.setLanguage("ja-JP");
-    await flutterTts.setSpeechRate(1.0);
+    await flutterTts.setSpeechRate(0.7);
     flutterTts.setCompletionHandler(() {
       _handleTtsCompletion();
     });
@@ -152,18 +152,20 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CustomButton(
-              text: '前へ',
+              text: '< 前へ',
               onPressed: ref.read(currentIndexProvider) > 0
                   ? () {
                       HapticFeedback.lightImpact();
                       previousNews();
                     }
                   : null,
-              style: ButtonStyles.prevButton,
+              style: ref.read(currentIndexProvider) > 0
+                  ? ButtonStyles.prevButton(isActive: true)
+                  : ButtonStyles.prevButton(isActive: false),
             ),
             const SizedBox(width: 20),
             CustomButton(
-              text: '次へ',
+              text: '次へ >',
               onPressed: () {
                 HapticFeedback.lightImpact();
                 nextNews();
@@ -202,8 +204,7 @@ class NewsTitle extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
 
-  const NewsTitle({Key? key, required this.title, required this.onTap})
-      : super(key: key);
+  const NewsTitle({super.key, required this.title, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -224,7 +225,7 @@ class NewsTitle extends StatelessWidget {
 class NewsContent extends StatelessWidget {
   final String content;
 
-  const NewsContent({Key? key, required this.content}) : super(key: key);
+  const NewsContent({super.key, required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -244,20 +245,28 @@ class CustomButton extends StatelessWidget {
   final ButtonStyle style;
 
   const CustomButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     required this.style,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
-      style: style,
+      style: onPressed == null
+          ? style.copyWith(
+              backgroundColor: WidgetStateProperty.all(AppColors.background),
+              foregroundColor: WidgetStateProperty.all(AppColors.disabled),
+            )
+          : style,
       child: Text(
         text,
-        style: const TextStyle(fontSize: 16),
+        style: TextStyle(
+          fontSize: 16,
+          color: onPressed == null ? AppColors.disabled : null,
+        ),
       ),
     );
   }
@@ -269,9 +278,16 @@ class ButtonStyles {
     minimumSize: const Size(150, 60),
   );
 
-  static final ButtonStyle prevButton = ElevatedButton.styleFrom(
-    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-    minimumSize: const Size(150, 60),
-    backgroundColor: AppColors.secondary,
-  );
+  static ButtonStyle prevButton({required bool isActive}) {
+    return ElevatedButton.styleFrom(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      minimumSize: const Size(150, 60),
+      backgroundColor: isActive ? AppColors.secondary : AppColors.background,
+      foregroundColor: isActive ? Colors.white : AppColors.disabled,
+      side: BorderSide(
+          color: isActive ? AppColors.primary : AppColors.disabled, width: 4),
+    ).copyWith(
+      elevation: WidgetStateProperty.all(0),
+    );
+  }
 }
