@@ -1,7 +1,7 @@
 name: voice_news
 description: "A new Flutter project."
 publish_to: "none"
-version: 0.1.1+3
+version: 0.3.0+6
 
 environment:
   sdk: ^3.5.0
@@ -12,7 +12,8 @@ dependencies:
   http:
   shared_preferences:
   flutter_tts:
-  flutter_riverpod: ^2.5.1
+  flutter_riverpod:
+  intl:
 
 dev_dependencies:
   flutter_test:

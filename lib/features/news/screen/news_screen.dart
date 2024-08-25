@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import '../../../themes/app_colors.dart';
 import '../providers/news_provider.dart';
+import '../widgets/controls/navigation_button.dart';
+import '../widgets/controls/play_button.dart';
 
 class NewsScreen extends ConsumerStatefulWidget {
   const NewsScreen({super.key});
@@ -20,7 +21,7 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
     super.initState();
     _initTts();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _speakTitle();
+      ref.read(newsScreenControllerProvider).speakTitle();
     });
   }
 
@@ -36,6 +37,7 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
     ref.read(isSpeakingProvider.notifier).state = false;
     if (!ref.read(isContentVisibleProvider)) {
       _toggleContentVisibility();
+      ref.read(newsScreenControllerProvider).speakContent();
     } else if (ref.read(isReadingContentProvider)) {
       ref.read(isReadingContentProvider.notifier).state = false;
       if (ref.read(currentIndexProvider) <
@@ -45,30 +47,14 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } else {
-      _speakContent();
+      ref.read(newsScreenControllerProvider).speakContent();
     }
-  }
-
-  Future<void> _speakTitle() async {
-    final newsData = ref.read(newsProvider).value!;
-    final currentIndex = ref.read(currentIndexProvider);
-    ref.read(isSpeakingProvider.notifier).state = true;
-    ref.read(isReadingContentProvider.notifier).state = false;
-    await flutterTts.speak(newsData[currentIndex]['title'] ?? '不明なタイトル');
-  }
-
-  Future<void> _speakContent() async {
-    final newsData = ref.read(newsProvider).value!;
-    final currentIndex = ref.read(currentIndexProvider);
-    ref.read(isSpeakingProvider.notifier).state = true;
-    ref.read(isReadingContentProvider.notifier).state = true;
-    await flutterTts.speak(newsData[currentIndex]['content'] ?? '内容がありません');
   }
 
   void _toggleContentVisibility() {
     ref.read(isContentVisibleProvider.notifier).update((state) => !state);
     if (ref.read(isContentVisibleProvider) && !ref.read(isSpeakingProvider)) {
-      _speakContent();
+      ref.read(newsScreenControllerProvider).speakContent();
     }
   }
 
@@ -80,7 +66,7 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
       ref.read(isSpeakingProvider.notifier).state = false;
       ref.read(isReadingContentProvider.notifier).state = false;
       flutterTts.stop();
-      _speakTitle();
+      ref.read(newsScreenControllerProvider).speakTitle();
     } else {
       flutterTts.stop();
       ref.read(currentIndexProvider.notifier).state = 0; // インデックスをリセット
@@ -95,7 +81,7 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
       ref.read(isSpeakingProvider.notifier).state = false;
       ref.read(isReadingContentProvider.notifier).state = false;
       flutterTts.stop();
-      _speakTitle();
+      ref.read(newsScreenControllerProvider).speakTitle();
     }
   }
 
@@ -148,11 +134,16 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        const SizedBox(height: 20),
+        PlayButton(
+          tts: flutterTts,
+        ),
+        const SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CustomButton(
-              text: '< 前へ',
+            NavigationButton(
+              text: '前へ',
               onPressed: ref.read(currentIndexProvider) > 0
                   ? () {
                       HapticFeedback.lightImpact();
@@ -162,19 +153,23 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
               style: ref.read(currentIndexProvider) > 0
                   ? ButtonStyles.prevButton(isActive: true)
                   : ButtonStyles.prevButton(isActive: false),
+              icon: Icons.skip_previous,
+              iconOnRight: false,
             ),
-            const SizedBox(width: 20),
-            CustomButton(
-              text: '次へ >',
+            const SizedBox(width: 60),
+            NavigationButton(
+              text: '次へ',
               onPressed: () {
                 HapticFeedback.lightImpact();
                 nextNews();
               },
               style: ButtonStyles.nextButton,
+              icon: Icons.skip_next,
+              iconOnRight: true,
             ),
           ],
         ),
-        const SizedBox(height: 60),
+        const SizedBox(height: 40),
       ],
     );
   }
@@ -235,59 +230,6 @@ class NewsContent extends StatelessWidget {
         content,
         style: const TextStyle(fontSize: 18, height: 1.5),
       ),
-    );
-  }
-}
-
-class CustomButton extends StatelessWidget {
-  final String text;
-  final VoidCallback? onPressed;
-  final ButtonStyle style;
-
-  const CustomButton({
-    super.key,
-    required this.text,
-    required this.onPressed,
-    required this.style,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: onPressed == null
-          ? style.copyWith(
-              backgroundColor: WidgetStateProperty.all(AppColors.background),
-              foregroundColor: WidgetStateProperty.all(AppColors.disabled),
-            )
-          : style,
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 16,
-          color: onPressed == null ? AppColors.disabled : null,
-        ),
-      ),
-    );
-  }
-}
-
-class ButtonStyles {
-  static final ButtonStyle nextButton = ElevatedButton.styleFrom(
-    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-    minimumSize: const Size(150, 60),
-  );
-
-  static ButtonStyle prevButton({required bool isActive}) {
-    return ElevatedButton.styleFrom(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-      minimumSize: const Size(150, 60),
-      backgroundColor: isActive ? AppColors.secondary : AppColors.background,
-      foregroundColor: isActive ? Colors.white : AppColors.disabled,
-      side: BorderSide(
-          color: isActive ? AppColors.primary : AppColors.disabled, width: 4),
-    ).copyWith(
-      elevation: WidgetStateProperty.all(0),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../controller/news_screen_controller.dart';
 import '../services/news_service.dart';
 
 final newsServiceProvider = Provider((ref) => NewsService());
@@ -34,3 +35,6 @@ final isSpeakingProvider = StateProvider<bool>((ref) => false);
 final isContentVisibleProvider = StateProvider<bool>((ref) => false);
 
 final isReadingContentProvider = StateProvider<bool>((ref) => false);
+
+final newsScreenControllerProvider =
+    Provider((ref) => NewsScreenController(ref));
