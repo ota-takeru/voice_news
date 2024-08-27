@@ -84,7 +84,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ニュースと天気アプリ'),
+        title: const Text('音声ニュース'),
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -126,29 +126,29 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      locationState.when(
-                        data: (location) {
-                          return Column(
-                            children: [
-                              Semantics(
-                                label: '現在地',
-                                value: '${location.city}, ${location.country}',
-                                child: Text(
-                                  '現在地: ${location.city}, ${location.country}',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.green,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                        loading: () => const CircularProgressIndicator(),
-                        error: (error, _) => Text('位置情報の取得に失敗しました: $error'),
-                      ),
-                      const SizedBox(height: 16),
+                      // locationState.when(
+                      //   data: (location) {
+                      //     return Column(
+                      //       children: [
+                      // Semantics(
+                      //   label: '現在地',
+                      //   value: '${location.city}, ${location.country}',
+                      //   child: Text(
+                      //     '現在地: ${location.city}, ${location.country}',
+                      //     style: const TextStyle(
+                      //       fontSize: 18,
+                      //       fontWeight: FontWeight.bold,
+                      //       color: Colors.green,
+                      //     ),
+                      //   ),
+                      // ),
+                      //     ],
+                      //   );
+                      // },
+                      // loading: () => const CircularProgressIndicator(),
+                      // error: (error, _) => Text('位置情報の取得に失敗しました: $error'),
+                      // ),
+                      // const SizedBox(height: 16),
                       weatherState.when(
                         data: (weather) => Column(
                           children: [

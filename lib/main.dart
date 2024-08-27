@@ -17,14 +17,14 @@ class NewsApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ニュースアプリ',
+      title: '音声ニュース',
       theme: ThemeData(
         primaryColor: AppColors.primary,
         scaffoldBackgroundColor: AppColors.background,
         appBarTheme: const AppBarTheme(
-          backgroundColor: AppColors.primary, // AppBarの背景色を設定
-          foregroundColor: Colors.white, // AppBar内のテキストやアイコンの色を設定
-        ),
+            backgroundColor: AppColors.secondary, // AppBarの背景色を設定
+            foregroundColor: AppColors.text // AppBar内のテキストやアイコンの色を設定
+            ),
         textTheme: const TextTheme(
           bodyLarge: TextStyle(color: AppColors.text),
           bodyMedium: TextStyle(color: AppColors.text),

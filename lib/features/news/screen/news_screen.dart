@@ -19,36 +19,60 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
   @override
   void initState() {
     super.initState();
-    _initTts();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(newsScreenControllerProvider).speakTitle();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _initTts();
+      print("ttsの初期化が終了しました。");
+      await ref.read(newsScreenControllerProvider).speakTitle();
+      // final newsAsyncValue = ref.read(newsProvider);
+      // newsAsyncValue.when(
+      //   data: (_) =>
+      //   error: (Object error, StackTrace stackTrace) {},
+      //   loading: () {},
+      // );
     });
   }
 
   Future<void> _initTts() async {
-    await flutterTts.setLanguage("ja-JP");
-    await flutterTts.setSpeechRate(0.7);
-    flutterTts.setCompletionHandler(() {
-      _handleTtsCompletion();
-    });
+    try {
+      await flutterTts.setLanguage("ja-JP");
+      await flutterTts.setSpeechRate(0.7);
+      flutterTts.setCompletionHandler(() {
+        print("読み上げが終了");
+        _handleTtsCompletion();
+      });
+
+      // エラーハンドリングを追加
+      flutterTts.setErrorHandler((msg) {
+        print("FlutterTts error: $msg");
+      });
+
+      print("ttsの初期化が完了");
+    } catch (e) {
+      print("FlutterTts initialization error: $e");
+    }
   }
 
   void _handleTtsCompletion() {
-    ref.read(isSpeakingProvider.notifier).state = false;
-    if (!ref.read(isContentVisibleProvider)) {
-      _toggleContentVisibility();
-      ref.read(newsScreenControllerProvider).speakContent();
-    } else if (ref.read(isReadingContentProvider)) {
-      ref.read(isReadingContentProvider.notifier).state = false;
-      if (ref.read(currentIndexProvider) <
-          ref.read(newsProvider).value!.length - 1) {
-        nextNews();
+    if (!mounted) return; // Stateが破棄されていないか確認
+
+    setState(() {
+      ref.read(isSpeakingProvider.notifier).state = false;
+      if (!ref.read(isContentVisibleProvider)) {
+        print("本文を表示する");
+        _toggleContentVisibility();
+      } else if (ref.read(isReadingContentProvider)) {
+        ref.read(isReadingContentProvider.notifier).state = false;
+        if (ref.read(currentIndexProvider) <
+            ref.read(newsProvider).value!.length - 1) {
+          nextNews();
+        } else {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       } else {
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        print("Completion handler: Speaking content again");
+        ref.read(newsScreenControllerProvider).speakContent();
       }
-    } else {
-      ref.read(newsScreenControllerProvider).speakContent();
-    }
+    });
   }
 
   void _toggleContentVisibility() {
@@ -93,7 +117,7 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ニュース'),
+        title: const Text('戻る'),
       ),
       body: newsAsyncValue.when(
         loading: () => const Center(child: CircularProgressIndicator()),

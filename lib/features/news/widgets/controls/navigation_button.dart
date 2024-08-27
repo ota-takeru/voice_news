@@ -10,6 +10,7 @@ class NavigationButton extends StatelessWidget {
   final double iconSize;
   final bool iconOnRight;
   final double fontSize;
+  final String? semanticLabel;
 
   const NavigationButton({
     super.key,
@@ -20,6 +21,7 @@ class NavigationButton extends StatelessWidget {
     this.iconSize = 40,
     this.iconOnRight = false,
     this.fontSize = 18,
+    this.semanticLabel,
   });
 
   @override
@@ -46,20 +48,23 @@ class NavigationButton extends StatelessWidget {
         children.add(boxWidget);
       }
     }
-
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: onPressed == null
-          ? style.copyWith(
-              backgroundColor: WidgetStateProperty.all(AppColors.background),
-              foregroundColor: WidgetStateProperty.all(AppColors.disabled),
-            )
-          : style,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: children,
+    return Semantics(
+      label: semanticLabel ?? text,
+      button: true,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: onPressed == null
+            ? style.copyWith(
+                backgroundColor: WidgetStateProperty.all(AppColors.background),
+                foregroundColor: WidgetStateProperty.all(AppColors.disabled),
+              )
+            : style,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: children,
+        ),
       ),
     );
   }
