@@ -14,6 +14,8 @@ dependencies:
   flutter_tts:
   flutter_riverpod:
   intl:
+  url_launcher:
+  webview_flutter:
 
 dev_dependencies:
   flutter_test:

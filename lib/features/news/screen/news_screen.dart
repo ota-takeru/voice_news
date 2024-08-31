@@ -130,7 +130,7 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
                     _buildNewsContent(NewsItem.fromMap(newsData[currentIndex])),
               ),
             ),
-            _buildActionButtons(),
+            _buildActionButtons(),  
           ],
         ),
       ),

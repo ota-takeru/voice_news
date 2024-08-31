@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:flutter_tts/flutter_tts.dart';
+import '../../settings/screens/setting_screen.dart';
 import '../models/weather_model.dart';
 import '../providers/news_provider.dart';
 import '../providers/weather_provider.dart';
@@ -85,6 +86,22 @@ class _StartScreenState extends ConsumerState<StartScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('音声ニュース'),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.settings,
+              size: 36,
+            ),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const SettingsScreen(),
+                ),
+              );
+            },
+          ),
+          const SizedBox(width: 20)
+        ],
       ),
       body: SingleChildScrollView(
         child: Center(
