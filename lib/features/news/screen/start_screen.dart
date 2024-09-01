@@ -206,31 +206,36 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               ),
               const SizedBox(height: 80),
               newsState.when(
-                data: (_) => Semantics(
-                  label: 'ニュースを読むボタン',
-                  button: true,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (context) => const NewsScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 32, vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                data: (newsData) {
+                  if (newsData.isEmpty) {
+                    return const Text('現在ニュースはありません');
+                  }
+                  return Semantics(
+                    label: 'ニュースを読むボタン',
+                    button: true,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) => const NewsScreen()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: const Text(
+                        'ニュースを読む',
+                        style: TextStyle(
+                          fontSize: 22,
+                        ),
                       ),
                     ),
-                    child: const Text(
-                      'ニュースを読む',
-                      style: TextStyle(
-                        fontSize: 22,
-                      ),
-                    ),
-                  ),
-                ),
+                  );
+                },
                 loading: () => const CircularProgressIndicator(),
                 error: (error, _) => Text('エラーが発生しました: $error'),
               ),
@@ -242,6 +247,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   }
 
   Widget _buildWeatherDisplay(WeatherDay weatherDay, String day) {
+    final (color, icon) = _getWeatherColorAndIcon(weatherDay.condition);
+
     return Semantics(
       label: '$dayの天気',
       value:
@@ -257,30 +264,43 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             ),
           ),
           Icon(
-            _getWeatherIcon(weatherDay.condition),
+            icon,
             size: 32,
-            color: Colors.blue,
+            color: color,
           ),
           const SizedBox(width: 8),
           Text(
             '${weatherDay.temperature.round()}°C',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.blue,
+              color: color,
             ),
           ),
           const SizedBox(width: 8),
           Text(
             _getJapaneseWeatherCondition(weatherDay.condition),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
-              color: Colors.blue,
+              color: color,
             ),
           ),
         ],
       ),
     );
+  }
+
+  (Color, IconData) _getWeatherColorAndIcon(String condition) {
+    switch (condition.toLowerCase()) {
+      case 'clear':
+        return (Colors.orange, Icons.wb_sunny);
+      case 'clouds':
+        return (Colors.grey, Icons.cloud);
+      case 'rain':
+        return (Colors.blue, Icons.umbrella);
+      default:
+        return (Colors.blueGrey, Icons.cloud_queue);
+    }
   }
 
   IconData _getWeatherIcon(String condition) {

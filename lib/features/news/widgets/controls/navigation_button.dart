@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../../../themes/app_colors.dart';
 
 class NavigationButton extends StatelessWidget {
@@ -38,16 +37,15 @@ class NavigationButton extends StatelessWidget {
     ];
 
     if (icon != null) {
-      final iconWidget = Icon(icon, size: iconSize),
-          boxWidget = const SizedBox(width: 8);
+      final iconWidget = Icon(icon, size: iconSize);
+      final boxWidget = const SizedBox(width: 8);
       if (iconOnRight) {
-        children.add(iconWidget);
-        children.insert(0, boxWidget);
+        children.addAll([boxWidget, iconWidget]);
       } else {
-        children.insert(0, iconWidget);
-        children.add(boxWidget);
+        children.insertAll(0, [iconWidget, boxWidget]);
       }
     }
+
     return Semantics(
       label: semanticLabel ?? text,
       button: true,
@@ -77,10 +75,14 @@ class ButtonStyles {
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
   );
 
-  static final ButtonStyle nextButton = baseStyle.copyWith(
-    backgroundColor: WidgetStateProperty.all(AppColors.primary),
-    foregroundColor: WidgetStateProperty.all(Colors.white),
-  );
+  static ButtonStyle nextButton({required bool isActive}) {
+    return baseStyle.copyWith(
+      backgroundColor: WidgetStateProperty.all(
+          isActive ? AppColors.primary : AppColors.background),
+      foregroundColor:
+          WidgetStateProperty.all(isActive ? Colors.white : AppColors.disabled),
+    );
+  }
 
   static ButtonStyle prevButton({required bool isActive}) {
     return baseStyle.copyWith(

@@ -1,9 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workmanager/workmanager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'features/news/services/news_service.dart';
 import 'themes/app_colors.dart';
 import 'features/news/screen/start_screen.dart';
 
-void main() {
+const String taskName = "updateNews";
+
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    switch (task) {
+      case taskName:
+        final newsService = NewsService();
+        await newsService.fetchNews();
+        await scheduleNextUpdate();
+        break;
+    }
+    return Future.value(true);
+  });
+}
+
+Future<void> scheduleNextUpdate() async {
+  final now = DateTime.now();
+  final nextRun =
+      DateTime(now.year, now.month, now.day, 2, 0).add(const Duration(days: 1));
+  final delay = nextRun.difference(now);
+
+  await Workmanager().registerOneOffTask(
+    taskName,
+    taskName,
+    initialDelay: delay,
+    constraints: Constraints(
+      networkType: NetworkType.connected,
+      requiresBatteryNotLow: true,
+    ),
+  );
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  try {
+    await Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
+
+    final prefs = await SharedPreferences.getInstance();
+    final lastScheduled = prefs.getInt('lastScheduled') ?? 0;
+    if (DateTime.now().millisecondsSinceEpoch - lastScheduled >
+        const Duration(hours: 23).inMilliseconds) {
+      await scheduleNextUpdate();
+      await prefs.setInt(
+          'lastScheduled', DateTime.now().millisecondsSinceEpoch);
+    }
+  } catch (e) {
+    print('Workmanagerの初期化エラー: $e');
+  }
+
   runApp(
     const ProviderScope(
       child: NewsApp(),
@@ -22,20 +75,19 @@ class NewsApp extends StatelessWidget {
         primaryColor: AppColors.primary,
         scaffoldBackgroundColor: AppColors.background,
         appBarTheme: const AppBarTheme(
-            backgroundColor: AppColors.secondary, // AppBarの背景色を設定
-            foregroundColor: AppColors.text // AppBar内のテキストやアイコンの色を設定
-            ),
+            backgroundColor: AppColors.secondary,
+            foregroundColor: AppColors.text),
         textTheme: const TextTheme(
           bodyLarge: TextStyle(color: AppColors.text),
           bodyMedium: TextStyle(color: AppColors.text),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ButtonStyle(
-            backgroundColor: const WidgetStatePropertyAll(AppColors.primary),
-            foregroundColor: const WidgetStatePropertyAll(Colors.white),
-            elevation: const WidgetStatePropertyAll(4.0),
+            backgroundColor: WidgetStateProperty.all(AppColors.primary),
+            foregroundColor: WidgetStateProperty.all(Colors.white),
+            elevation: WidgetStateProperty.all(4.0),
             shadowColor:
-                WidgetStatePropertyAll(AppColors.primary.withOpacity(0.5)),
+                WidgetStateProperty.all(AppColors.primary.withOpacity(0.5)),
           ),
         ),
       ),

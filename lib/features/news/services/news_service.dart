@@ -7,28 +7,57 @@ class NewsService {
   static const String _lastFetchTimeKey = 'lastFetchTime';
   static const String _newsDataKey = 'newsData';
   static const int _maxStoredNews = 50; // 保存するニュース数の上限
+  static const Duration _cacheValidityDuration = Duration(hours: 24);
 
   Future<List<Map<String, dynamic>>> fetchNews() async {
     final prefs = await SharedPreferences.getInstance();
     final lastFetchTime = prefs.getInt(_lastFetchTimeKey) ?? 0;
     final currentTime = DateTime.now().millisecondsSinceEpoch;
 
-    if (currentTime - lastFetchTime > 24 * 60 * 60 * 1000) {
-      return _fetchFromApi(prefs, currentTime);
+    if (currentTime - lastFetchTime > _cacheValidityDuration.inMilliseconds) {
+      try {
+        return await _fetchFromApi(prefs, currentTime);
+      } catch (e) {
+        print('APIからのデータ取得に失敗しました: $e');
+        // APIからの取得に失敗した場合、ローカルデータを使用
+        final localData = await _fetchFromLocal(prefs);
+        if (localData.isEmpty) {
+          // ローカルデータが空の場合、再度APIからの取得を試みる
+          return await _fetchFromApi(prefs, currentTime);
+        }
+        return localData;
+      }
     } else {
-      return _fetchFromLocal(prefs);
+      final localData = await _fetchFromLocal(prefs);
+      if (localData.isEmpty) {
+        // ローカルデータが空の場合、APIからの取得を試みる
+        return await _fetchFromApi(prefs, currentTime);
+      }
+      return localData;
     }
   }
 
   Future<List<Map<String, dynamic>>> _fetchFromApi(
       SharedPreferences prefs, int currentTime) async {
-    final response = await http.get(Uri.parse(_apiUrl));
-    if (response.statusCode == 200) {
-      final List<dynamic> newData = json.decode(response.body);
-      await _storeNews(newData, prefs, currentTime);
-      return List<Map<String, dynamic>>.from(newData);
-    } else {
-      throw Exception('Failed to load news');
+    try {
+      final response = await http.get(Uri.parse(_apiUrl));
+      // print('API Response Status Code: ${response.statusCode}');
+      // print('API Response Body: ${response.body}');
+      if (response.statusCode == 200) {
+        final List<dynamic> newData = json.decode(response.body);
+        if (newData.isEmpty) {
+          print('Warning: API returned empty data');
+          return [];
+        }
+        await _storeNews(newData, prefs, currentTime);
+        return List<Map<String, dynamic>>.from(newData);
+      } else {
+        print('Error: API returned status code ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching from API: $e');
+      return [];
     }
   }
 
@@ -51,9 +80,14 @@ class NewsService {
   Future<List<Map<String, dynamic>>> _fetchFromLocal(
       SharedPreferences prefs) async {
     final String? storedData = prefs.getString(_newsDataKey);
+    print('Stored Data: $storedData');
     if (storedData != null) {
-      return List<Map<String, dynamic>>.from(json.decode(storedData));
+      final decodedData =
+          List<Map<String, dynamic>>.from(json.decode(storedData));
+      print('Decoded Stored Data: $decodedData');
+      return decodedData;
     } else {
+      print('No stored data found');
       return [];
     }
   }

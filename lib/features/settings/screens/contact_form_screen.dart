@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ContactFormScreen extends ConsumerWidget {
   const ContactFormScreen({super.key});
@@ -26,12 +25,12 @@ class ContactFormScreen extends ConsumerWidget {
               'メールアドレス：',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             SelectableText(
               emailAddress,
-              style: const TextStyle(fontSize: 16, color: Colors.blue),
+              style: TextStyle(fontSize: 16, color: Colors.blue),
             ),
-            const SizedBox(height: 44),
+            SizedBox(height: 44),
 
             // ElevatedButton.icon(
             //   onPressed: () {
@@ -89,7 +88,7 @@ class ContactFormScreen extends ConsumerWidget {
 class WebViewScreen extends StatelessWidget {
   final String url;
 
-  const WebViewScreen({Key? key, required this.url}) : super(key: key);
+  const WebViewScreen({super.key, required this.url});
 
   @override
   Widget build(BuildContext context) {

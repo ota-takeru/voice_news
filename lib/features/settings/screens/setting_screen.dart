@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../widgets/contact_form.dart';
+import 'contact_form_screen.dart';
+import 'voice_setting_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -15,6 +16,19 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         children: [
           const SizedBox(height: 16),
+          ListTile(
+            leading: const Icon(Icons.volume_up),
+            title: const Text('音声設定'),
+            subtitle: const Text('音声関連の設定を変更'),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const VoiceSettingsScreen(),
+                ),
+              );
+            },
+          ),
+          const Divider(),
           ListTile(
             leading: const Icon(Icons.contact_support),
             title: const Text('問い合わせ'),
@@ -33,7 +47,8 @@ class SettingsScreen extends ConsumerWidget {
             title: const Text('公式サイト'),
             subtitle: const Text('最新情報やサポート情報を確認'),
             onTap: () async {
-              final url = Uri.parse('https://www.notion.so/8cca95146fb24529b0c2bb4ba5eed736');
+              final url = Uri.parse(
+                  'https://www.notion.so/8cca95146fb24529b0c2bb4ba5eed736');
               if (await canLaunchUrl(url)) {
                 await launchUrl(url);
               } else {
