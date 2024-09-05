@@ -47,11 +47,19 @@ void main() async {
 
     final prefs = await SharedPreferences.getInstance();
     final lastScheduled = prefs.getInt('lastScheduled') ?? 0;
+    final newsService = NewsService();
     if (DateTime.now().millisecondsSinceEpoch - lastScheduled >
         const Duration(hours: 23).inMilliseconds) {
       await scheduleNextUpdate();
+      await newsService.fetchNews(); // アプリ起動時にニュースをフェッチ
       await prefs.setInt(
           'lastScheduled', DateTime.now().millisecondsSinceEpoch);
+    } else if (DateTime.now()
+            .difference(DateTime.fromMillisecondsSinceEpoch(lastScheduled))
+            .inDays >=
+        1) {
+      // ローカルデータが1日以上前の場合、ニュースをフェッチ
+      await newsService.fetchNews();
     }
   } catch (e) {
     print('Workmanagerの初期化エラー: $e');

@@ -38,7 +38,7 @@ class NavigationButton extends StatelessWidget {
 
     if (icon != null) {
       final iconWidget = Icon(icon, size: iconSize);
-      final boxWidget = const SizedBox(width: 8);
+      const boxWidget = SizedBox(width: 8);
       if (iconOnRight) {
         children.addAll([boxWidget, iconWidget]);
       } else {

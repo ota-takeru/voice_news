@@ -162,8 +162,7 @@ class NewsTitle extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
 
-  const NewsTitle({Key? key, required this.title, required this.onTap})
-      : super(key: key);
+  const NewsTitle({super.key, required this.title, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -188,8 +187,7 @@ class NewsDateAndSource extends StatelessWidget {
   final String? sourceUrl;
 
   const NewsDateAndSource(
-      {Key? key, this.publishedAt, this.sourceName, this.sourceUrl})
-      : super(key: key);
+      {super.key, this.publishedAt, this.sourceName, this.sourceUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -231,7 +229,7 @@ class NewsDateAndSource extends StatelessWidget {
 class NewsContent extends StatelessWidget {
   final String content;
 
-  const NewsContent({Key? key, required this.content}) : super(key: key);
+  const NewsContent({super.key, required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -249,7 +247,7 @@ class NewsContent extends StatelessWidget {
 class NewsLinks extends StatelessWidget {
   final String? url;
 
-  const NewsLinks({Key? key, this.url}) : super(key: key);
+  const NewsLinks({super.key, this.url});
 
   @override
   Widget build(BuildContext context) {
