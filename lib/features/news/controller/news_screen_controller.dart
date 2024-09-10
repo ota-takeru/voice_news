@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/news_state_model.dart';
@@ -54,6 +56,10 @@ class NewsScreenController extends StateNotifier<NewsState> {
         isSpeaking: false,
         isReadingContent: false,
       );
+      // iOSの場合、短い遅延を追加
+      if (Platform.isIOS) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
       await speakTitle();
     }
   }
@@ -67,6 +73,10 @@ class NewsScreenController extends StateNotifier<NewsState> {
         isSpeaking: false,
         isReadingContent: false,
       );
+      // iOSの場合、短い遅延を追加
+      if (Platform.isIOS) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
       await speakTitle();
     }
   }
