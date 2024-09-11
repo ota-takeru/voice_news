@@ -48,6 +48,7 @@ class NewsScreenController extends StateNotifier<NewsState> {
   }
 
   Future<void> nextNews() async {
+    final ttsService = _ref.read(flutterTtsServiceProvider);
     if (state.currentIndex < state.news.length - 1) {
       await _smoothScrollToTop();
       state = state.copyWith(
@@ -56,15 +57,13 @@ class NewsScreenController extends StateNotifier<NewsState> {
         isSpeaking: false,
         isReadingContent: false,
       );
-      // iOSの場合、短い遅延を追加
-      if (Platform.isIOS) {
-        await Future.delayed(const Duration(milliseconds: 100));
-      }
+      await ttsService.stop();
       await speakTitle();
     }
   }
 
   Future<void> previousNews() async {
+    final ttsService = _ref.read(flutterTtsServiceProvider);
     if (state.currentIndex > 0) {
       await _smoothScrollToTop();
       state = state.copyWith(
@@ -73,10 +72,7 @@ class NewsScreenController extends StateNotifier<NewsState> {
         isSpeaking: false,
         isReadingContent: false,
       );
-      // iOSの場合、短い遅延を追加
-      if (Platform.isIOS) {
-        await Future.delayed(const Duration(milliseconds: 100));
-      }
+      await ttsService.stop();
       await speakTitle();
     }
   }
