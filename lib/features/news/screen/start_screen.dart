@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../settings/screens/setting_screen.dart';
+import '../../settings/services/flutter_tts_service.dart';
 import '../controller/start_screen_controller.dart';
 import '../widgets/news_button.dart';
 import '../widgets/time_display_widget.dart';
@@ -17,6 +18,12 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeScreen();
+  }
+
+  void _initializeScreen() async {
+    final ttsService = ref.read(flutterTtsServiceProvider);
+    await ttsService.loadVoiceSettings();
   }
 
   @override

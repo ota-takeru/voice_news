@@ -11,7 +11,6 @@ class WeatherWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final weatherState = ref.watch(weatherProvider);
-    final weather = ref.watch(weatherProvider.notifier);
 
     return weatherState.when(
       data: (weather) => Column(
@@ -63,12 +62,6 @@ class WeatherWidget extends ConsumerWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          Icon(
-            icon,
-            size: 32,
-            color: color,
-          ),
-          const SizedBox(width: 8),
           Text(
             '${weatherDay.temperature.round()}°C',
             style: TextStyle(
@@ -78,10 +71,25 @@ class WeatherWidget extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: 8),
+          Icon(
+            icon,
+            size: 32,
+            color: color,
+          ),
+          const SizedBox(width: 8),
+          // Text(
+          //   _getJapaneseWeatherCondition(weatherDay.condition),
+          //   style: TextStyle(
+          //     fontSize: 18,
+          //     color: color,
+          //   ),
+          // ),
+          // const SizedBox(width: 8),
           Text(
-            _getJapaneseWeatherCondition(weatherDay.condition),
+            '${(weatherDay.precipProbability * 100).round()}%',
             style: TextStyle(
               fontSize: 18,
+              fontWeight: FontWeight.bold,
               color: color,
             ),
           ),

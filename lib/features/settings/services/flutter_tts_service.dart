@@ -18,6 +18,7 @@ class FlutterTtsService {
 
   Future<void> _initTts() async {
     await _flutterTts.setLanguage("ja-JP");
+    await loadVoiceSettings();
   }
 
   Future<void> loadVoiceSettings() async {
