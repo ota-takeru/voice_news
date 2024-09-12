@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'features/news/services/news_service.dart';
-import 'features/settings/services/flutter_tts_service.dart';
 import 'themes/app_colors.dart';
 import 'features/news/screen/start_screen.dart';
 
