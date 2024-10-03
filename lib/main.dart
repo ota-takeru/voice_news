@@ -1,3 +1,5 @@
+import 'package:device_preview/device_preview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workmanager/workmanager.dart';
@@ -66,8 +68,11 @@ void main() async {
   }
 
   runApp(
-    const ProviderScope(
-      child: NewsApp(),
+     DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (context) => const ProviderScope(
+        child: NewsApp(),
+      ),
     ),
   );
 }
@@ -78,6 +83,7 @@ class NewsApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: '音声ニュース',
       theme: ThemeData(
         primaryColor: AppColors.primary,

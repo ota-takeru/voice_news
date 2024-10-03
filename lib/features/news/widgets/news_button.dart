@@ -13,7 +13,7 @@ class NewsButton extends ConsumerWidget {
     return newsState.when(
       data: (newsData) {
         if (newsData.isEmpty) {
-          return const Text('現在ニュースはありません');
+          return const Text('現在ニュースを取得できません');
         }
         return Semantics(
           label: 'ニュースを読むボタン',
