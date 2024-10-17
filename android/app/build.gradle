@@ -1,6 +1,6 @@
 // ファイルの先頭に以下を追加
 buildscript {
-    ext.kotlin_version = '2.0.20' // 最新の安定版Kotlinバージョンに更新
+    ext.kotlin_version = '2.0.21' // 最新の安定版Kotlinバージョンに更新
 }
 
 plugins {

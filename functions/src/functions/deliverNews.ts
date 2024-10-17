@@ -22,7 +22,12 @@ export const delivernews = onRequest(
 
       if (snapshot.empty) {
         console.log("ニュースデータが見つかりませんでした。");
-        res.status(200).json({ message: "No recent news found.", news: [] });
+        res.status(200).json({
+          data: {
+            message: "No recent news found.",
+            news: [],
+          },
+        });
         return;
       }
 
@@ -42,8 +47,10 @@ export const delivernews = onRequest(
       });
 
       res.status(200).json({
-        message: "Recent news data retrieved successfully.",
-        news: newsData,
+        data: {
+          message: "Recent news data retrieved successfully.",
+          news: newsData,
+        },
       });
     } catch (error) {
       console.error("Error retrieving news data:", error);

@@ -5,7 +5,7 @@ export interface Article {
   content: string;
   source: {
     name: string;
-    url: string;
+    url: string;  
   };
   publishedAt: string;
 }

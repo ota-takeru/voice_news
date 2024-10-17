@@ -1,9 +1,8 @@
-import 'package:http/http.dart' as http;
+import 'package:cloud_functions/cloud_functions.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NewsService {
-  static const String _apiUrl = 'https://news-provider-api.vercel.app/news';
   static const String _lastFetchTimeKey = 'lastFetchTime';
   static const String _newsDataKey = 'newsData';
   static const int _maxStoredNews = 50; // 保存するニュース数の上限
@@ -16,47 +15,54 @@ class NewsService {
 
     if (currentTime - lastFetchTime > _cacheValidityDuration.inMilliseconds) {
       try {
-        return await _fetchFromApi(prefs, currentTime);
+        return await _fetchFromFunctions(prefs, currentTime);
       } catch (e) {
-        print('APIからのデータ取得に失敗しました: $e');
-        // APIからの取得に失敗した場合、ローカルデータを使用
+        print('Firebase Functionsからのデータ取得に失敗しました: $e');
+        // Firebase Functionsからの取得に失敗した場合、ローカルデータを使用
         final localData = await _fetchFromLocal(prefs);
         if (localData.isEmpty) {
-          // ローカルデータが空の場合、再度APIからの取得を試みる
-          return await _fetchFromApi(prefs, currentTime);
+          // ローカルデータが空の場合、再度Firebase Functionsからの取得を試みる
+          return await _fetchFromFunctions(prefs, currentTime);
         }
         return localData;
       }
     } else {
       final localData = await _fetchFromLocal(prefs);
       if (localData.isEmpty) {
-        // ローカルデータが空の場合、APIからの取得を試みる
-        return await _fetchFromApi(prefs, currentTime);
+        // ローカルデータが空の場合、Firebase Functionsからの取得を試みる
+        return await _fetchFromFunctions(prefs, currentTime);
       }
       return localData;
     }
   }
 
-  Future<List<Map<String, dynamic>>> _fetchFromApi(
+  Future<List<Map<String, dynamic>>> _fetchFromFunctions(
       SharedPreferences prefs, int currentTime) async {
+    // Firebase Functionsの呼び出し
+    final functions = FirebaseFunctions.instanceFor(
+        region: 'asia-northeast1'); // リージョンに合わせて変更
+    final HttpsCallable callable = functions.httpsCallable('delivernews');
     try {
-      final response = await http.get(Uri.parse(_apiUrl));
-      // print('API Response Status Code: ${response.statusCode}');
-      // print('API Response Body: ${response.body}');
-      if (response.statusCode == 200) {
-        final List<dynamic> newData = json.decode(response.body);
+      final result = await callable();
+      final data = result.data as Map<String, dynamic>;
+
+      if (result.data != null) {
+        final newData = (data['news'] as List<dynamic>)
+            .map((item) => Map<String, dynamic>.from(item))
+            .toList();
+
         if (newData.isEmpty) {
-          print('Warning: API returned empty data');
+          print('Warning: Firebase Functions returned empty data');
           return [];
         }
         await _storeNews(newData, prefs, currentTime);
-        return List<Map<String, dynamic>>.from(newData);
+        return newData;
       } else {
-        print('Error: API returned status code ${response.statusCode}');
+        print('Error: Firebase Functions returned null');
         return [];
       }
     } catch (e) {
-      print('Error fetching from API: $e');
+      print('Error fetching from Firebase Functions: $e');
       return [];
     }
   }

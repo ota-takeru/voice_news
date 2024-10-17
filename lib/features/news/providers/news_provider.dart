@@ -26,7 +26,7 @@ class NewsNotifier extends StateNotifier<AsyncValue<List<NewsItem>>> {
       if (response.isEmpty) {
         print('警告: 空のニュースデータを受信しました'); // 警告ログ
       }
-      final news = response.map((item) => NewsItem.fromMap(item)).toList();
+      List<NewsItem> news = response.map((item) => NewsItem.fromMap(item)).toList();
       state = AsyncValue.data(news);
     } catch (e, stackTrace) {
       print('ニュース取得エラー: $e'); // エラーログ
