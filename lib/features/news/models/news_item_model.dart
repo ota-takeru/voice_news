@@ -22,9 +22,10 @@ class NewsItem {
       sourceName: map['source_name'],
       sourceUrl: map['source_url'],
       url: map['url'],
-      publishedAt: map['published_at'] != null
-          ? DateTime.parse(map['published_at']).toLocal().toString()
-          : null,
+      // publishedAt: map['published_at'] != null
+      //     ? DateTime.parse(map['published_at']).toLocal().toString()
+      //     : null,
+      publishedAt: map['published_at'],
     );
   }
 }
