@@ -43,6 +43,7 @@ export const delivernews = onRequest(
           source_url: data.source_url,
           published_at: data.published_at,
           expires_at: data.expires_at,
+          audio_url: data.audio_url,
         });
       });
 

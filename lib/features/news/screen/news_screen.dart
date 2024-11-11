@@ -3,11 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:voice_news/themes/app_colors.dart';
-import '../../settings/services/flutter_tts_service.dart';
 import '../controller/news_screen_controller.dart';
 import '../models/news_item_model.dart';
 import '../models/news_state_model.dart';
-// import '../providers/news_provider.dart';
+import '../services/AudioStreamingServices.dart';
 import '../widgets/controls/navigation_button.dart';
 import '../widgets/controls/play_button.dart';
 
@@ -20,35 +19,23 @@ class NewsScreen extends ConsumerStatefulWidget {
 
 class _NewsScreenState extends ConsumerState<NewsScreen> {
   late ScrollController _scrollController;
-  bool _mounted = true;
 
   @override
   void initState() {
     super.initState();
     _scrollController =
         ref.read(newsScreenControllerProvider.notifier).scrollController;
-    _initializeScreen();
-  }
 
-  Future<void> _initializeScreen() async {
-    final ttsService = ref.read(flutterTtsServiceProvider);
-    await ttsService.loadVoiceSettings();
-    ttsService.setCompletionCallback(() {
-      if (_mounted) {
-        ref.read(newsScreenControllerProvider.notifier).handleTtsCompletion();
-      }
+    Future.microtask(() {
+      ref.read(newsScreenControllerProvider.notifier).speakContent();
     });
-    if (_mounted) {
-      await ref.read(newsScreenControllerProvider.notifier).speakTitle();
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final newsState = ref.watch(newsScreenControllerProvider);
-    final controller = ref.read(newsScreenControllerProvider.notifier);
-    ref.watch(flutterTtsServiceProvider);
-
+    final newsScreenController =
+        ref.read(newsScreenControllerProvider.notifier);
     return Scaffold(
       appBar: AppBar(
         title: const Text('戻る'),
@@ -64,7 +51,7 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
                         newsState.news[newsState.currentIndex]),
                   ),
                 ),
-                _buildActionButtons(controller, newsState),
+                _buildActionButtons(newsScreenController, newsState),
               ],
             ),
     );
@@ -76,7 +63,7 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
         NewsTitle(
           title: news.title,
           onTap: () => ref
-              .read(newsScreenControllerProvider.notifier)
+              .watch(newsScreenControllerProvider.notifier)
               .toggleContentVisibility(),
         ),
         NewsDateAndSource(
@@ -91,17 +78,15 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
   }
 
   Widget _buildActionButtons(
-      NewsScreenController controller, NewsState newsState) {
+      NewsScreenController newsScreenController, NewsState newsState) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const SizedBox(height: 20),
         PlayButton(
           isPlaying: newsState.isSpeaking,
-          onPlay: newsState.isContentVisible
-              ? controller.speakContent
-              : controller.speakTitle,
-          onPause: controller.pauseSpeaking,
+          onPlay: newsScreenController.reStartSpeaking,
+          onPause: newsScreenController.pauseSpeaking,
           isContentVisible: newsState.isContentVisible,
         ),
         const SizedBox(height: 20),
@@ -113,7 +98,7 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
               onPressed: newsState.currentIndex > 0
                   ? () {
                       HapticFeedback.lightImpact();
-                      controller.previousNews();
+                      newsScreenController.previousNews();
                     }
                   : null,
               style:
@@ -127,7 +112,7 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
               onPressed: newsState.currentIndex < newsState.news.length - 1
                   ? () {
                       HapticFeedback.lightImpact();
-                      controller.nextNews();
+                      newsScreenController.nextNews();
                     }
                   : null,
               style: ButtonStyles.nextButton(
@@ -144,15 +129,13 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
 
   @override
   void deactivate() {
-    if (_mounted) {
-      ref.read(flutterTtsServiceProvider).stop();
-    }
     super.deactivate();
   }
 
   @override
   void dispose() {
-    _mounted = false;
+    _scrollController.dispose();
+    ref.read(audioStreamingServiceProvider).stop();
     super.dispose();
   }
 }
@@ -207,8 +190,10 @@ class NewsDateAndSource extends StatelessWidget {
           GestureDetector(
             onTap: () async {
               final Uri url = Uri.parse(sourceUrl!);
-              if (await canLaunchUrl(url)) {
+              try {
                 await launchUrl(url);
+              } catch (e) {
+                print('Error: $e');
               }
             },
             child: Text(

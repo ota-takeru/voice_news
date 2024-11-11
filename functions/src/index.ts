@@ -5,3 +5,4 @@ setGlobalOptions({
 
 export { fetchnews } from "./functions/fetchNews";
 export { delivernews } from "./functions/deliverNews";
+export { generateAudioForNews } from "./functions/generateAudioForNews";

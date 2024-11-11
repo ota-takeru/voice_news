@@ -5,6 +5,8 @@ class NewsItem {
   final String? sourceUrl;
   final String? url;
   final String? publishedAt;
+  final String? audioUrl;
+  final String? audioPath;
 
   NewsItem({
     required this.title,
@@ -13,6 +15,8 @@ class NewsItem {
     this.sourceUrl,
     this.url,
     required this.publishedAt,
+    this.audioUrl,
+    this.audioPath,
   });
 
   factory NewsItem.fromMap(Map<String, dynamic> map) {
@@ -22,10 +26,9 @@ class NewsItem {
       sourceName: map['source_name'],
       sourceUrl: map['source_url'],
       url: map['url'],
-      // publishedAt: map['published_at'] != null
-      //     ? DateTime.parse(map['published_at']).toLocal().toString()
-      //     : null,
       publishedAt: map['published_at'],
+      audioUrl: map['audio_url'],
+      audioPath: map['audio_path'],
     );
   }
 }

@@ -1,9 +1,9 @@
 import { onRequest } from "firebase-functions/v2/https";
 import { Timestamp, FieldValue } from "firebase-admin/firestore";
 import { db } from "../config/firestore";
-import { httpsRequest } from "../utils/httpsRequest";
 import { GNewsResponse } from "../types/news";
 import { defineSecret } from "firebase-functions/params";
+import * as superagent from "superagent";
 
 const GNEWS_API_KEY = defineSecret("GNEWS_API_KEY");
 
@@ -26,8 +26,9 @@ export const fetchnews = onRequest(
 
       const url = `https://gnews.io/api/v4/top-headlines?lang=ja&country=jp&max=20&from=${formattedTime}&expand=content&apikey=${apiKey}`;
 
-      const response = await httpsRequest<GNewsResponse>(url, 30000);
-      const { articles } = response;
+      // Using superagent to fetch data from the API
+      const response = await superagent.get(url).timeout({ response: 30000 });
+      const { articles } = response.body as GNewsResponse;
 
       console.log(`Received ${articles.length} articles from GNews API`);
 
@@ -46,6 +47,7 @@ export const fetchnews = onRequest(
           source_url: article.source.url,
           published_at: article.publishedAt.split("T")[0],
           expires_at: oneWeekFromNow,
+          audio_url: "",
           created_at: FieldValue.serverTimestamp(),
         });
       });

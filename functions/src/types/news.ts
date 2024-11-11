@@ -1,11 +1,10 @@
-
 export interface Article {
   title: string;
   url: string;
   content: string;
   source: {
     name: string;
-    url: string;  
+    url: string;
   };
   publishedAt: string;
 }
@@ -23,4 +22,10 @@ export interface NewsData {
   source_url: string;
   published_at: string;
   expires_at: string;
+  audio_url: string;
+}
+
+
+export interface AudioQueryResponse {
+  [key: string]: any;
 }
