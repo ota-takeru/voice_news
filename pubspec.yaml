@@ -22,7 +22,9 @@ dependencies:
   cloud_functions: ^5.1.3
   googleapis_auth: ^1.6.0
   just_audio: ^0.9.41
+  audioplayers:
   tflite_flutter: ^0.11.0
+  typed_data: ^1.3.0
 
 dev_dependencies:
   flutter_test:
@@ -31,3 +33,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets\models\fastspeech_quant.tflite
+    - assets\models\melgan_float16.tflite
+    - assets\models\ljspeech_mapper.json

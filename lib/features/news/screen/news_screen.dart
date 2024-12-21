@@ -6,7 +6,6 @@ import 'package:voice_news/themes/app_colors.dart';
 import '../controller/news_screen_controller.dart';
 import '../models/news_item_model.dart';
 import '../models/news_state_model.dart';
-import '../services/AudioStreamingServices.dart';
 import '../widgets/controls/navigation_button.dart';
 import '../widgets/controls/play_button.dart';
 
@@ -135,7 +134,6 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
-    ref.read(audioStreamingServiceProvider).stop();
     super.dispose();
   }
 }

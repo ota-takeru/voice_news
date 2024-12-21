@@ -21,7 +21,8 @@ class NewsNotifier extends StateNotifier<AsyncValue<List<NewsItem>>> {
     state = const AsyncValue.loading();
     try {
       final response = await _newsService.fetchNews();
-      print('API Response: $response'); // デバッグログ
+      // print('API Response: $response'); // デバッグログ
+      print('API Response: ${response.length}件のニュースデータを受信しました'); // デバッグログ
       if (response.isEmpty) {
         print('警告: 空のニュースデータを受信しました'); // 警告ログ
       }

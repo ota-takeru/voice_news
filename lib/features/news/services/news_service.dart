@@ -86,11 +86,11 @@ class NewsService {
   Future<List<Map<String, dynamic>>> _fetchFromLocal(
       SharedPreferences prefs) async {
     final String? storedData = prefs.getString(_newsDataKey);
-    print('Stored Data: $storedData');
     if (storedData != null) {
       final decodedData =
           List<Map<String, dynamic>>.from(json.decode(storedData));
-      print('Decoded Stored Data: $decodedData');
+      // print('Decoded Stored Data: $decodedData');
+      print('Stored data found');
       return decodedData;
     } else {
       print('No stored data found');

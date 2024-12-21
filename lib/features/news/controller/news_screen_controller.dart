@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../settings/services/tts_service.dart';
 import '../models/news_state_model.dart';
 import '../providers/news_provider.dart';
-import '../../settings/services/audioStreamingServices.dart';
+// import '../../settings/services/audioStreamingServices.dart';
 
 final newsScreenControllerProvider =
     StateNotifierProvider<NewsScreenController, NewsState>((ref) {
@@ -12,13 +13,16 @@ final newsScreenControllerProvider =
 class NewsScreenController extends StateNotifier<NewsState> {
   NewsScreenController(this._ref) : super(NewsState(news: [])) {
     _scrollController = ScrollController();
-    _audioStreamingService = _ref.watch(audioStreamingServiceProvider);
+    // 非同期にTTSServiceを取得し、必要に応じて初期化
     _initializeNews();
   }
 
   final Ref _ref;
   late final ScrollController _scrollController;
-  late final AudioStreamingService _audioStreamingService;
+  // late final AudioStreamingService _audioStreamingService;
+  // TTSServiceを非同期に取得するためのFuture
+  late final Future<TTSService> _ttsServiceFuture =
+      _ref.read(ttsServiceProvider.future);
 
   ScrollController get scrollController => _scrollController;
 
@@ -32,8 +36,9 @@ class NewsScreenController extends StateNotifier<NewsState> {
   Future<void> speakContent() async {
     state = state.copyWith(isSpeaking: true, isReadingContent: true);
     try {
-      await _audioStreamingService
-          .play(state.news[state.currentIndex].audioUrl ?? "");
+      final ttsService = await _ttsServiceFuture;
+      // await ttsService.speak(state.news[state.currentIndex].content);
+      await ttsService.speak("Hello, World!");
       print("url ${state.news[state.currentIndex].audioUrl}");
     } catch (e) {
       print("Error playing content: $e");
@@ -42,40 +47,60 @@ class NewsScreenController extends StateNotifier<NewsState> {
   }
 
   Future<void> reStartSpeaking() async {
-    await _audioStreamingService.reStart();
-    state = state.copyWith(isSpeaking: true);
+    try {
+      final ttsService = await _ttsServiceFuture;
+      await ttsService.resume();
+      state = state.copyWith(isSpeaking: true);
+    } catch (e) {
+      print("Error resuming speaking: $e");
+    }
   }
 
   Future<void> pauseSpeaking() async {
-    await _audioStreamingService.pause();
-    state = state.copyWith(isSpeaking: false);
+    try {
+      final ttsService = await _ttsServiceFuture;
+      ttsService.pause();
+      state = state.copyWith(isSpeaking: false);
+    } catch (e) {
+      print("Error pausing speaking: $e");
+    }
   }
 
   Future<void> nextNews() async {
     if (state.currentIndex < state.news.length - 1) {
       await _smoothScrollToTop();
-      await _audioStreamingService.stop();
-      state = state.copyWith(
-        currentIndex: state.currentIndex + 1,
-        isContentVisible: false,
-        isSpeaking: false,
-        isReadingContent: false,
-      );
-      await speakContent();
+      try {
+        final ttsService = await _ttsServiceFuture;
+        await ttsService.stop();
+        state = state.copyWith(
+          currentIndex: state.currentIndex + 1,
+          isContentVisible: false,
+          isSpeaking: false,
+          isReadingContent: false,
+        );
+        await speakContent();
+      } catch (e) {
+        print("Error moving to next news: $e");
+      }
     }
   }
 
   Future<void> previousNews() async {
     if (state.currentIndex > 0) {
       await _smoothScrollToTop();
-      await _audioStreamingService.stop();
-      state = state.copyWith(
-        currentIndex: state.currentIndex - 1,
-        isContentVisible: false,
-        isSpeaking: false,
-        isReadingContent: false,
-      );
-      await speakContent();
+      try {
+        final ttsService = await _ttsServiceFuture;
+        await ttsService.stop();
+        state = state.copyWith(
+          currentIndex: state.currentIndex - 1,
+          isContentVisible: false,
+          isSpeaking: false,
+          isReadingContent: false,
+        );
+        await speakContent();
+      } catch (e) {
+        print("Error moving to previous news: $e");
+      }
     }
   }
 
@@ -112,7 +137,10 @@ class NewsScreenController extends StateNotifier<NewsState> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _audioStreamingService.stop();
+    // disposeは非同期にできないため、stopを非同期に呼び出す
+    _ttsServiceFuture.then((ttsService) => ttsService.stop()).catchError((e) {
+      print("Error stopping TTSService during dispose: $e");
+    });
     super.dispose();
   }
 }

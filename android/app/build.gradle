@@ -41,7 +41,7 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
-
+        
     signingConfigs {
         release {
             keyAlias keystoreProperties['keyAlias']
@@ -59,6 +59,13 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+
+    sourceSets {
+        main {
+            assets.srcDirs = ['src/main/assets']
+        }
+    }
+
 }
 
 flutter {
@@ -67,4 +74,9 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'org.tensorflow:tensorflow-lite:2.11.0'
+    'org.tensorflow:tensorflow-lite-flex:2.11.0'
+    implementation 'org.tensorflow:tensorflow-lite-select-tf-ops:0.0.0-nightly-SNAPSHOT'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'io.flutter:flutter_embedding_debug: 2.5.3'
 }
