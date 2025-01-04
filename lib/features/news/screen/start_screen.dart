@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+<<<<<<< HEAD
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -11,6 +12,14 @@ import '../providers/weather_provider.dart';
 import '../providers/location_provider.dart';
 import '../widgets/controls/news_button.dart';
 import '../widgets/manage_keyword_widget.dart';
+=======
+import '../../settings/screens/setting_screen.dart';
+import '../../settings/services/flutter_tts_service.dart';
+import '../controller/start_screen_controller.dart';
+import '../widgets/news_button.dart';
+import '../widgets/time_display_widget.dart';
+import '../widgets/weather_widget.dart';
+>>>>>>> 0b877d3c19b3342e54f9d2f0e34879075e178a06
 
 class StartScreen extends ConsumerStatefulWidget {
   const StartScreen({super.key});
@@ -20,70 +29,29 @@ class StartScreen extends ConsumerStatefulWidget {
 }
 
 class _StartScreenState extends ConsumerState<StartScreen> {
-  late Timer _timer;
-  DateTime _currentTime = DateTime.now();
-  final FlutterTts flutterTts = FlutterTts();
-
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _currentTime = DateTime.now();
-      });
-    });
-    _initializeData();
+    _initializeScreen();
   }
 
-  Future<void> _initializeData() async {
-    await ref.read(locationProvider.notifier).fetchLocation();
-    await ref.read(weatherProvider.notifier).fetchWeather();
-    await ref.read(newsProvider.notifier).fetchNews();
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  Future<void> _speakTimeAndWeather(Weather weather) async {
-    final timeString = DateFormat('HH時mm分').format(_currentTime);
-    final todayWeatherString =
-        '今日の天気は${_getJapaneseWeatherCondition(weather.today.condition)}で、気温は${weather.today.temperature.round()}度です';
-    final tomorrowWeatherString =
-        '明日の天気は${_getJapaneseWeatherCondition(weather.tomorrow.condition)}で、気温は${weather.tomorrow.temperature.round()}度の予報です';
-    await flutterTts.setLanguage("ja-JP");
-    await flutterTts.speak(
-        "現在の時刻は$timeStringです。$todayWeatherString。$tomorrowWeatherString");
-  }
-
-  String _getJapaneseWeatherCondition(String condition) {
-    switch (condition.toLowerCase()) {
-      case 'clear':
-        return '晴れ';
-      case 'clouds':
-        return '曇り';
-      case 'rain':
-        return '雨';
-      default:
-        return condition;
-    }
-  }
-
-  String _getJapaneseWeekday(int weekday) {
-    const weekdays = ['月', '火', '水', '木', '金', '土', '日'];
-    return weekdays[weekday - 1];
+  void _initializeScreen() async {
+    final ttsService = ref.read(flutterTtsServiceProvider);
+    await ttsService.loadVoiceSettings();
   }
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< HEAD
     // ref.watch(newsProvider) は不要になり、NewsButton 側で監視する
     final weatherState = ref.watch(weatherProvider);
 
     final formattedDate = DateFormat('yyyy年MM月dd日').format(_currentTime);
     final weekday = _getJapaneseWeekday(_currentTime.weekday);
     final formattedTime = DateFormat('HH:mm').format(_currentTime);
+=======
+    final controller = ref.watch(startScreenControllerProvider.notifier);
+>>>>>>> 0b877d3c19b3342e54f9d2f0e34879075e178a06
 
     return Scaffold(
       appBar: AppBar(
@@ -119,32 +87,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
-                      Semantics(
-                        label: '日付',
-                        value: '$formattedDate ($weekday)',
-                        child: Text(
-                          '$formattedDate ($weekday)',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blueGrey,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Semantics(
-                        label: '現在時刻',
-                        value: formattedTime,
-                        child: Text(
-                          formattedTime,
-                          style: const TextStyle(
-                            fontSize: 56,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ),
+                      const TimeDisplayWidget(),
                       const SizedBox(height: 16),
+<<<<<<< HEAD
                       // 天気表示
                       weatherState.when(
                         data: (weather) => Column(
@@ -180,12 +125,21 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             ),
                           ),
                         ),
+=======
+                      const WeatherWidget(),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: controller.speakTimeAndWeather,
+                        icon: const Icon(Icons.volume_up, size: 20),
+                        label: const Text('時刻と天気を読み上げる'),
+>>>>>>> 0b877d3c19b3342e54f9d2f0e34879075e178a06
                       ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 80),
+<<<<<<< HEAD
 
               // ★ ここからが変更点:
               //    もともと newsState.when(...) + ElevatedButton.icon(...) だった箇所を
@@ -197,12 +151,16 @@ class _StartScreenState extends ConsumerState<StartScreen> {
 
               const SizedBox(height: 40),
               const ManageKeywordWidget(),
+=======
+              const NewsButton(),
+>>>>>>> 0b877d3c19b3342e54f9d2f0e34879075e178a06
             ],
           ),
         ),
       ),
     );
   }
+<<<<<<< HEAD
 
   Widget _buildWeatherDisplay(WeatherDay weatherDay, String day) {
     final (color, icon) = _getWeatherColorAndIcon(weatherDay.condition);
@@ -259,4 +217,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         return (Colors.blueGrey, Icons.cloud_queue);
     }
   }
+=======
+>>>>>>> 0b877d3c19b3342e54f9d2f0e34879075e178a06
 }

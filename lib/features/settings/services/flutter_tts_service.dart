@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -17,6 +18,7 @@ class FlutterTtsService {
 
   Future<void> _initTts() async {
     await _flutterTts.setLanguage("ja-JP");
+    await loadVoiceSettings();
   }
 
   Future<void> loadVoiceSettings() async {
@@ -64,11 +66,15 @@ class FlutterTtsService {
   }
 
   void setCompletionCallback(VoidCallback callback) {
-    _flutterTts.setCompletionHandler(callback);
-  }
-
-  void setCompletionHandler(Function() handler) {
-    _flutterTts.setCompletionHandler(handler);
+    if (Platform.isIOS) {
+      // iOS固有の処理
+      _flutterTts.setCompletionHandler(callback);
+      _flutterTts.setCancelHandler(callback);
+      _flutterTts.setPauseHandler(callback);
+    } else {
+      // Android（およびその他のプラットフォーム）の処理
+      _flutterTts.setCompletionHandler(callback);
+    }
   }
 
   void setErrorHandler(Function(String message) handler) {

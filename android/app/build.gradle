@@ -5,9 +5,13 @@ buildscript {
 
 plugins {
     id "com.android.application"
+    // START: FlutterFire Configuration
+    id 'com.google.gms.google-services'
+    // END: FlutterFire Configuration
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
 }
+
 
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('key.properties')
@@ -18,7 +22,11 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "app.voice_news"
     compileSdk = flutter.compileSdkVersion
+<<<<<<< HEAD
     ndkVersion = 26
+=======
+    ndkVersion = "26.1.10909125"
+>>>>>>> 0b877d3c19b3342e54f9d2f0e34879075e178a06
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11

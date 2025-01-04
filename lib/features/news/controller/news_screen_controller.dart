@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/news_state_model.dart';
@@ -46,6 +47,7 @@ class NewsScreenController extends StateNotifier<NewsState> {
   }
 
   Future<void> nextNews() async {
+    final ttsService = _ref.read(flutterTtsServiceProvider);
     if (state.currentIndex < state.news.length - 1) {
       await _smoothScrollToTop();
       state = state.copyWith(
@@ -54,11 +56,13 @@ class NewsScreenController extends StateNotifier<NewsState> {
         isSpeaking: false,
         isReadingContent: false,
       );
+      await ttsService.stop();
       await speakTitle();
     }
   }
 
   Future<void> previousNews() async {
+    final ttsService = _ref.read(flutterTtsServiceProvider);
     if (state.currentIndex > 0) {
       await _smoothScrollToTop();
       state = state.copyWith(
@@ -67,6 +71,7 @@ class NewsScreenController extends StateNotifier<NewsState> {
         isSpeaking: false,
         isReadingContent: false,
       );
+      await ttsService.stop();
       await speakTitle();
     }
   }

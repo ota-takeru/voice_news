@@ -19,31 +19,52 @@ class WeatherNotifier extends StateNotifier<AsyncValue<Weather>> {
   final WeatherService _weatherService;
   final Ref _ref;
 
+  // デフォルトの位置情報を定義
+  static Location defaultLocation = Location(
+    city: "Tokyo",
+    country: "Japan",
+    latitude: 35.6762,
+    longitude: 139.6503,
+  );
+
   WeatherNotifier(this._ref, this._weatherService)
       : super(const AsyncValue.loading());
 
   Future<void> fetchWeather() async {
+    state = const AsyncValue.loading();
+
     final locationState = _ref.read(locationProvider);
 
-    if (locationState is AsyncData<Location>) {
-      final location = locationState.value;
-      try {
-        state = const AsyncValue.loading();
-        final weather = await _weatherService.fetchWeatherForecast(
-            latitude: location.latitude, longitude: location.longitude);
+    Location locationToUse;
 
-        state = AsyncValue.data(weather);
-      } on NetworkError {
-        state = AsyncValue.error("ネットワークエラーが発生しました。", StackTrace.current);
-      } on ApiException {
-        state = AsyncValue.error("APIエラーが発生しました。", StackTrace.current);
-      } catch (e) {
-        state = AsyncValue.error("エラーが発生しました。no response", StackTrace.current);
-      }
-    } else if (locationState is AsyncError) {
-      state = AsyncValue.error("位置情報の取得に失敗しました。", StackTrace.current);
+    if (locationState is AsyncData<Location>) {
+      locationToUse = locationState.value;
     } else {
-      state = const AsyncValue.loading();
+      // 位置情報の取得に失敗した場合やローディング中の場合、デフォルトの位置情報を使用
+      locationToUse = defaultLocation;
+    }
+
+    try {
+      final weather = await _weatherService.fetchWeatherForecast(
+          latitude: locationToUse.latitude, longitude: locationToUse.longitude);
+
+      if (mounted) {
+        state = AsyncValue.data(weather);
+      }
+    } catch (e, stackTrace) {
+      if (mounted) {
+        state = AsyncValue.error(_getErrorMessage(e), stackTrace);
+      }
+    }
+  }
+
+  String _getErrorMessage(dynamic error) {
+    if (error is NetworkError) {
+      return 'ネットワークエラーが発生しました。インターネット接続を確認してください。';
+    } else if (error is ApiException) {
+      return 'APIエラーが発生しました。しばらくしてからもう一度お試しください。';
+    } else {
+      return '天気情報の取得中に予期せぬエラーが発生しました。';
     }
   }
 }

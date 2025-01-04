@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:voice_news/themes/app_colors.dart';
@@ -8,23 +10,25 @@ class VoiceSettingsScreen extends ConsumerWidget {
   const VoiceSettingsScreen({super.key});
 
   String formatVoiceName(String voice) {
-    final parts = voice.split('-');
-    if (parts.length >= 4 && parts[0] == 'ja' && parts[1] == 'jp') {
-      final voiceType = parts[3];
+    if (Platform.isAndroid) {
+      final parts = voice.split('-');
+      if (parts.length >= 4 && parts[0] == 'ja' && parts[1] == 'jp') {
+        final voiceType = parts[3];
 
-      switch (voiceType) {
-        case 'language':
-          return 'デフォルト（女性音声1）';
-        case 'jab':
-          return '女性音声1(デフォルト)';
-        case 'jac':
-          return '男性音声2';
-        case 'jad':
-          return '男性音声1';
-        case 'htm':
-          return '女性音声2';
-        default:
-          return '音声 $voiceType';
+        switch (voiceType) {
+          case 'language':
+            return 'デフォルト（女性音声1）';
+          case 'jab':
+            return '女性音声1(デフォルト)';
+          case 'jac':
+            return '男性音声2';
+          case 'jad':
+            return '男性音声1';
+          case 'htm':
+            return '女性音声2';
+          default:
+            return '音声 $voiceType';
+        }
       }
     }
     return voice;

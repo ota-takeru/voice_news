@@ -18,8 +18,12 @@ pluginManagement {
 
 plugins {
     id "dev.flutter.flutter-plugin-loader" version "1.0.0"
+<<<<<<< HEAD
     id "com.android.application" version '8.2.1' apply false
+=======
+    id "com.android.application" version '8.6.0' apply false
+>>>>>>> 0b877d3c19b3342e54f9d2f0e34879075e178a06
     id "org.jetbrains.kotlin.android" version "1.9.0" apply false
 }
-
+    
 include ":app"
