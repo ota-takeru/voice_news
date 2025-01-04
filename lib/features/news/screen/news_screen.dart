@@ -51,7 +51,8 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
   Widget build(BuildContext context) {
     final newsState = ref.watch(newsScreenControllerProvider);
     final controller = ref.read(newsScreenControllerProvider.notifier);
-    ref.watch(flutterTtsServiceProvider);
+    ref.watch(flutterTtsServiceProvider)
+    ;
 
     return Scaffold(
       appBar: AppBar(

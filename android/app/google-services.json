@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "674516299039",
+    "project_id": "voice-news-79674",
+    "storage_bucket": "voice-news-79674.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:674516299039:android:5d0a63afb478fcdaae942a",
+        "android_client_info": {
+          "package_name": "app.voice_news"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEvhOABiJdgtd24b4hJVrNpXI4f1z53rk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
