@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:flutter_tts/flutter_tts.dart';
+
 import '../../settings/screens/setting_screen.dart';
 import '../models/weather_model.dart';
 import '../providers/news_provider.dart';
 import '../providers/weather_provider.dart';
 import '../providers/location_provider.dart';
-import 'news_screen.dart';
+import '../widgets/controls/news_button.dart';
+import '../widgets/manage_keyword_widget.dart';
 
 class StartScreen extends ConsumerStatefulWidget {
   const StartScreen({super.key});
@@ -76,9 +78,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final newsState = ref.watch(newsProvider);
-    final locationState = ref.watch(locationProvider);
+    // ref.watch(newsProvider) は不要になり、NewsButton 側で監視する
     final weatherState = ref.watch(weatherProvider);
+
     final formattedDate = DateFormat('yyyy年MM月dd日').format(_currentTime);
     final weekday = _getJapaneseWeekday(_currentTime.weekday);
     final formattedTime = DateFormat('HH:mm').format(_currentTime);
@@ -100,7 +102,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               );
             },
           ),
-          const SizedBox(width: 20)
+          const SizedBox(width: 20),
         ],
       ),
       body: SingleChildScrollView(
@@ -143,29 +145,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // locationState.when(
-                      //   data: (location) {
-                      //     return Column(
-                      //       children: [
-                      // Semantics(
-                      //   label: '現在地',
-                      //   value: '${location.city}, ${location.country}',
-                      //   child: Text(
-                      //     '現在地: ${location.city}, ${location.country}',
-                      //     style: const TextStyle(
-                      //       fontSize: 18,
-                      //       fontWeight: FontWeight.bold,
-                      //       color: Colors.green,
-                      //     ),
-                      //   ),
-                      // ),
-                      //     ],
-                      //   );
-                      // },
-                      // loading: () => const CircularProgressIndicator(),
-                      // error: (error, _) => Text('位置情報の取得に失敗しました: $error'),
-                      // ),
-                      // const SizedBox(height: 16),
+                      // 天気表示
                       weatherState.when(
                         data: (weather) => Column(
                           children: [
@@ -180,6 +160,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                         },
                       ),
                       const SizedBox(height: 16),
+                      // 時刻と天気を読み上げるボタン
                       Semantics(
                         label: '時刻と天気を読み上げるボタン',
                         button: true,
@@ -205,40 +186,17 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 ),
               ),
               const SizedBox(height: 80),
-              newsState.when(
-                data: (newsData) {
-                  if (newsData.isEmpty) {
-                    return const Text('現在ニュースはありません');
-                  }
-                  return Semantics(
-                    label: 'ニュースを読むボタン',
-                    button: true,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (context) => const NewsScreen()),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 32, vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      child: const Text(
-                        'ニュースを読む',
-                        style: TextStyle(
-                          fontSize: 22,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-                loading: () => const CircularProgressIndicator(),
-                error: (error, _) => Text('エラーが発生しました: $error'),
-              ),
+
+              // ★ ここからが変更点:
+              //    もともと newsState.when(...) + ElevatedButton.icon(...) だった箇所を
+              //    NewsButton に置き換える。
+              //    NewsButton 内部ですでに newsProvider を監視し、ニュースが空ならテキスト、
+              //    そうでなければ「ニュースを読む」ボタンなどを返す仕組み。
+
+              const NewsButton(),
+
+              const SizedBox(height: 40),
+              const ManageKeywordWidget(),
             ],
           ),
         ),
@@ -248,7 +206,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
 
   Widget _buildWeatherDisplay(WeatherDay weatherDay, String day) {
     final (color, icon) = _getWeatherColorAndIcon(weatherDay.condition);
-
     return Semantics(
       label: '$dayの天気',
       value:
@@ -300,19 +257,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         return (Colors.blue, Icons.umbrella);
       default:
         return (Colors.blueGrey, Icons.cloud_queue);
-    }
-  }
-
-  IconData _getWeatherIcon(String condition) {
-    switch (condition.toLowerCase()) {
-      case 'clear':
-        return Icons.wb_sunny;
-      case 'clouds':
-        return Icons.cloud;
-      case 'rain':
-        return Icons.umbrella;
-      default:
-        return Icons.cloud_queue;
     }
   }
 }

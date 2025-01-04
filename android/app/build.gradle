@@ -1,6 +1,6 @@
 // ファイルの先頭に以下を追加
 buildscript {
-    ext.kotlin_version = '1.9.10' // 最新の安定版Kotlinバージョンに更新
+    ext.kotlin_version = '2.0.20' // 最新の安定版Kotlinバージョンに更新
 }
 
 plugins {
@@ -18,7 +18,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "app.voice_news"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = 26
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
@@ -32,7 +32,7 @@ android {
     defaultConfig {
         applicationId = "app.voice_news"
         // minSdk = flutter.minSdkVersion
-        minSdk = 23
+        minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

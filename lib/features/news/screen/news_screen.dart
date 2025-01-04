@@ -7,12 +7,16 @@ import '../../settings/services/flutter_tts_service.dart';
 import '../controller/news_screen_controller.dart';
 import '../models/news_item_model.dart';
 import '../models/news_state_model.dart';
-// import '../providers/news_provider.dart';
 import '../widgets/controls/navigation_button.dart';
 import '../widgets/controls/play_button.dart';
 
 class NewsScreen extends ConsumerStatefulWidget {
-  const NewsScreen({super.key});
+  final String? keyword;
+
+  const NewsScreen({
+    super.key,
+    this.keyword,
+  });
 
   @override
   ConsumerState<NewsScreen> createState() => _NewsScreenState();
