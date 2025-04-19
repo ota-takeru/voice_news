@@ -1,3 +1,4 @@
 # voice_news
 
-A new Flutter project.
+### バックエンドのコード
+https://github.com/ota-takeru/news-provider-api
