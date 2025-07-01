@@ -22,6 +22,7 @@ class Weather {
       cityName: json['city']['name'],
     );
   }
+
 }
 
 class WeatherDay {
@@ -34,6 +35,7 @@ class WeatherDay {
     required this.condition,
     required this.precipProbability,
   });
+  
 
   factory WeatherDay.fromJson(Map<String, dynamic> json) {
     return WeatherDay(

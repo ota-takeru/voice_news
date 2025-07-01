@@ -58,14 +58,14 @@ class WeatherWidget extends ConsumerWidget {
           Text(
             '$day: ',
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),
           Text(
             '${weatherDay.temperature.round()}°C',
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: color,
             ),

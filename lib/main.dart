@@ -43,32 +43,42 @@ Future<void> scheduleNextUpdate() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   try {
     await Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
 
     final prefs = await SharedPreferences.getInstance();
     final lastScheduled = prefs.getInt('lastScheduled') ?? 0;
     final newsService = NewsService();
+
+    // キーワードの取得
+    final keywords = prefs.getStringList('saved_keywords') ?? [];
+    print("${keywords.length}個のキーワードが取得できました。");
+
     if (DateTime.now().millisecondsSinceEpoch - lastScheduled >
         const Duration(hours: 23).inMilliseconds) {
       await scheduleNextUpdate();
-      await newsService.fetchNews(); // アプリ起動時にニュースをフェッチ
+      // トップニュースとキーワードニュースの取得
+      await newsService.fetchNews();
+      for (final keyword in keywords) {
+        await newsService.fetchNews(keyword);
+      }
       await prefs.setInt(
           'lastScheduled', DateTime.now().millisecondsSinceEpoch);
     } else if (DateTime.now()
             .difference(DateTime.fromMillisecondsSinceEpoch(lastScheduled))
             .inDays >=
         1) {
-      // ローカルデータが1日以上前の場合、ニュースをフェッチ
       await newsService.fetchNews();
+      for (final keyword in keywords) {
+        await newsService.fetchNews(keyword);
+      }
     }
   } catch (e) {
     print('Workmanagerの初期化エラー: $e');
   }
 
   runApp(
-     DevicePreview(
+    DevicePreview(
       enabled: !kReleaseMode,
       builder: (context) => const ProviderScope(
         child: NewsApp(),

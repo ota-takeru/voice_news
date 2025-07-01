@@ -18,7 +18,7 @@ class NewsButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // ニュースを監視する (AsyncValue<List<String>>)
-    final newsState = ref.watch(newsProvider);
+    final newsState = ref.watch(newsProvider(null));
 
     // newsState.when: (data / loading / error) のいずれかに応じてウィジェットを返す
     return newsState.when(
@@ -34,6 +34,7 @@ class NewsButton extends ConsumerWidget {
           button: true,
           child: ElevatedButton.icon(
             onPressed: () {
+              print("NewsButton build メソッドが呼ばれた"); // この行を追加
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => keyword == null

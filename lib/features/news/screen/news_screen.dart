@@ -29,8 +29,9 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
   @override
   void initState() {
     super.initState();
-    _scrollController =
-        ref.read(newsScreenControllerProvider.notifier).scrollController;
+    _scrollController = ref
+        .read(newsScreenControllerProvider(widget.keyword).notifier)
+        .scrollController;
     _initializeScreen();
   }
 
@@ -39,20 +40,23 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
     await ttsService.loadVoiceSettings();
     ttsService.setCompletionCallback(() {
       if (_mounted) {
-        ref.read(newsScreenControllerProvider.notifier).handleTtsCompletion();
+        ref
+            .read(newsScreenControllerProvider(widget.keyword).notifier)
+            .handleTtsCompletion();
       }
     });
     if (_mounted) {
-      await ref.read(newsScreenControllerProvider.notifier).speakTitle();
+      await ref
+          .read(newsScreenControllerProvider(widget.keyword).notifier)
+          .speakTitle();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final newsState = ref.watch(newsScreenControllerProvider);
-    final controller = ref.read(newsScreenControllerProvider.notifier);
-    ref.watch(flutterTtsServiceProvider)
-    ;
+    final newsState = ref.watch(newsScreenControllerProvider(widget.keyword));
+    final controller =
+        ref.read(newsScreenControllerProvider(widget.keyword).notifier);
 
     return Scaffold(
       appBar: AppBar(
@@ -81,7 +85,7 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
         NewsTitle(
           title: news.title,
           onTap: () => ref
-              .read(newsScreenControllerProvider.notifier)
+              .read(newsScreenControllerProvider(widget.keyword).notifier)
               .toggleContentVisibility(),
         ),
         NewsDateAndSource(

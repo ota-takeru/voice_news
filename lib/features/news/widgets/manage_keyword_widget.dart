@@ -65,7 +65,6 @@ class _ManageKeywordWidgetState extends State<ManageKeywordWidget> {
       child: Column(
         children: [
           // タイトル + ボタンエリア
-
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -109,7 +108,6 @@ class _ManageKeywordWidgetState extends State<ManageKeywordWidget> {
               ],
             ),
           ),
-
           // キーワード入力フィールド
           if (_isAddingKeyword)
             Padding(
@@ -143,21 +141,19 @@ class _ManageKeywordWidgetState extends State<ManageKeywordWidget> {
                 ],
               ),
             ),
-
           // 登録済みキーワード一覧
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start, // 必要に応じて調整
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: _keywords.map((keyword) {
               return Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10.0), // ボタン間の余白を設定
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // ニュースを開くボタン (NewsButton) として使う
                     NewsButton(keyword: keyword),
-                    const SizedBox(width: 4),
-                    // 削除ボタン (×マーク) は 編集モードのときだけ表示
+                    const SizedBox(width: 16),
+                    // 編集モード時に表示する削除ボタン
                     Visibility(
                       visible: _isEditingKeyword,
                       child: InkWell(
@@ -167,10 +163,17 @@ class _ManageKeywordWidgetState extends State<ManageKeywordWidget> {
                           });
                           _saveKeywords();
                         },
-                        child: const Icon(
-                          Icons.close,
-                          size: 16,
-                          color: Colors.white,
+                        child: Container(
+                          padding: const EdgeInsets.all(4.0),
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.grey,
+                          ),
+                          child: const Icon(
+                            Icons.close,
+                            size: 32,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),

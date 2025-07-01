@@ -16,16 +16,15 @@ class TimeDisplayWidget extends ConsumerWidget {
         Text(
           '$formattedDate ($weekday)',
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
             color: Colors.blueGrey,
           ),
         ),
-        const SizedBox(height: 12),
         Text(
           formattedTime,
           style: const TextStyle(
-            fontSize: 56,
+            fontSize: 36,
             fontWeight: FontWeight.bold,
             color: Colors.black87,
           ),

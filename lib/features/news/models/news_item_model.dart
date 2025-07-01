@@ -5,6 +5,7 @@ class NewsItem {
   final String? sourceUrl;
   final String? url;
   final String? publishedAt;
+  final String? keyword;
 
   NewsItem({
     required this.title,
@@ -13,6 +14,7 @@ class NewsItem {
     this.sourceUrl,
     this.url,
     required this.publishedAt,
+    this.keyword,
   });
 
   factory NewsItem.fromMap(Map<String, dynamic> map) {
@@ -25,6 +27,7 @@ class NewsItem {
       publishedAt: map['published_at'] != null
           ? DateTime.parse(map['published_at']).toLocal().toString()
           : null,
+      keyword: map['keyword'],
     );
   }
 }
